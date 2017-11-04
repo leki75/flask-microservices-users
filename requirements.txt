@@ -2,5 +2,6 @@ Flask
 Flask-Script
 Flask-SQLAlchemy
 Flask-Testing
+coverage
 gunicorn
 psycopg2
