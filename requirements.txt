@@ -1,4 +1,5 @@
 Flask
+Flask-Cors
 Flask-Script
 Flask-SQLAlchemy
 Flask-Testing
