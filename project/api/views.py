@@ -29,20 +29,26 @@ def add_user():
     email = post_data.get('email')
     try:
         user = User.query.filter_by(email=email).first()
-        if not user:
-            db.session.add(User(username=username, email=email))
-            db.session.commit()
-            response_object = {
-                    'status': 'success',
-                    'message': f'{email} was added!',
-                    }
-            return jsonify(response_object), 201
-        else:
+        if user:
             response_object = {
                     'status': 'fail',
                     'message': 'Sorry. That email already exists.',
                     }
             return jsonify(response_object), 400
+        user = User.query.filter_by(username=username).first()
+        if user:
+            response_object = {
+                    'status': 'fail',
+                    'message': 'Sorry. That username already exists.',
+                    }
+            return jsonify(response_object), 400
+        db.session.add(User(username=username, email=email))
+        db.session.commit()
+        response_object = {
+                'status': 'success',
+                'message': f'{email} was added!',
+                }
+        return jsonify(response_object), 201
     except exc.IntegrityError as e:
         db.session.rollback()
         response_object = {

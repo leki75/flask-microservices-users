@@ -1,16 +1,11 @@
 import datetime
 from flask import json
+from sqlalchemy.exc import IntegrityError
 
 from project import db
 from project.api.models import User
 from project.tests.base import BaseTestCase
-
-
-def add_user(username, email, created_at=datetime.datetime.utcnow()):
-    user = User(username=username, email=email, created_at=created_at)
-    db.session.add(user)
-    db.session.commit()
-    return user
+from project.tests.utils import add_user
 
 
 class TestUserService(BaseTestCase):
@@ -74,6 +69,29 @@ class TestUserService(BaseTestCase):
                     '/users',
                     data=json.dumps(dict(
                         username='michael',
+                        email='michael@another.com',
+                        )),
+                    content_type='application/json',
+                    )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('username already exists', data['message'])
+            self.assertIn('fail', data['status'])
+
+    def test_add_user_duplicate_email(self):
+        with self.client:
+            self.client.post(
+                    '/users',
+                    data=json.dumps(dict(
+                        username='michael',
+                        email='michael@realpython.com',
+                        )),
+                    content_type='application/json',
+                    )
+            response = self.client.post(
+                    '/users',
+                    data=json.dumps(dict(
+                        username='mikael',
                         email='michael@realpython.com',
                         )),
                     content_type='application/json',
